@@ -36,7 +36,7 @@ AuthFlow comenzó durante un bootcamp de desarrollo full stack utilizando un sta
 
 ## Instalación local
 
-Requisitos: Python 3.12+, Node.js 24, npm y PostgreSQL. Redis y SMTP son obligatorios en producción.
+Requisitos: Python 3.12+, Node.js 24, npm y Docker Desktop. PostgreSQL y Redis se ejecutan con Docker Compose; SMTP es obligatorio únicamente en producción.
 
 ```bash
 git clone https://github.com/JorgeOteiza/authflow-react-flask.git
@@ -54,9 +54,11 @@ cp .env.example .env
 
 Genera valores aleatorios diferentes, de al menos 32 bytes, para `SECRET_KEY` y `JWT_SECRET_KEY`. Configura también `DATABASE_URL`. El `.env.example` documenta SMTP, Redis y la política de contraseñas. En desarrollo, `EMAIL_DELIVERY=log` imprime los enlaces de correo en la consola de Flask.
 
-Aplica las migraciones e inicia la API:
+Inicia PostgreSQL y Redis, aplica las migraciones e inicia la API:
 
 ```bash
+docker compose up -d
+docker compose ps
 flask --app src/app.py db upgrade
 flask run
 ```
@@ -68,6 +70,10 @@ npm run dev
 ```
 
 Frontend: `http://localhost:3000` · API: `http://localhost:3001`
+
+Detén la infraestructura al terminar con `docker compose stop`. Los datos permanecen en volúmenes Docker. Usa
+`docker compose down` para eliminar contenedores y red sin borrar datos; `docker compose down -v` también elimina
+las bases locales y debe utilizarse únicamente cuando quieras reiniciarlas desde cero.
 
 Usa siempre `localhost` en ambas direcciones durante el desarrollo. No mezcles
 `localhost` con `127.0.0.1`: las cookies seguras y la política CORS distinguen
