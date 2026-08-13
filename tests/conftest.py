@@ -25,6 +25,8 @@ def app():
         "JWT_SECRET_KEY": "test-jwt-secret-with-at-least-32-bytes",
         "JWT_COOKIE_SECURE": False,
         "RATELIMIT_ENABLED": False,
+        "REQUIRE_EMAIL_VERIFICATION": False,
+        "PASSWORD_BREACH_CHECK": False,
     })
     with application.app_context():
         db.create_all()
@@ -42,7 +44,7 @@ def client(app):
 def registered_client(client):
     response = client.post("/api/auth/signup", json={
         "email": "person@example.com",
-        "password": "Secure123",
+        "password": "Secure1234",
     })
     assert response.status_code == 201
     return client

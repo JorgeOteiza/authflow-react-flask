@@ -9,7 +9,10 @@
   "scripts": {
     "start": "webpack serve --config webpack.dev.js",
     "dev": "webpack serve --config webpack.dev.js",
-    "build": "webpack --config webpack.prod.js"
+    "build": "webpack --config webpack.prod.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test"
   },
   "author": {
     "name": "Jorge Oteiza",
@@ -27,11 +30,16 @@
     "css-loader": "^7.1.4",
     "dotenv-webpack": "^9.0.0",
     "html-webpack-plugin": "^5.6.8",
+    "@playwright/test": "^1.55.0",
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^16.3.0",
+    "jsdom": "^26.1.0",
     "style-loader": "^4.0.0",
     "webpack": "latest",
     "webpack-cli": "^7.2.2",
     "webpack-dev-server": "latest",
-    "webpack-merge": "^6.0.1"
+    "webpack-merge": "^6.0.1",
+    "vitest": "^3.2.4"
   },
   "dependencies": {
     "react": "^19.2.0",
