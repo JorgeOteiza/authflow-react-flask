@@ -5,8 +5,8 @@ repository:
 labels:
   - name: "bug"
     color: c10000
-  - name: ":nerd_face: 4geeks student"
-    color: 7057ff
+  - name: "documentation"
+    color: 0075ca
   - name: "enhancement"
     color: a2eeef
   - name: "first-timers-only"
@@ -19,9 +19,9 @@ labels:
     color: fbca04
   - name: ":star: P2"
     color: fbca04
-  - name: ":memo: bc-writter"
-    color: 98bde2
-  - name: ":computer: bc-coder"
-    color: 98bde2
-  - name: ":beetle: bc-inspector"
-    color: 98bde2
+  - name: "security"
+    color: d73a4a
+  - name: "frontend"
+    color: 1d76db
+  - name: "backend"
+    color: 0e8a16

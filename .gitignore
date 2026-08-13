@@ -63,9 +63,7 @@ Thumbs.db
 node_modules/
 
 # webpack output
-dist/*
-!public/
-!public/*
+dist/
 
 # ignore the dist directory were our bundle files are going to be
 !.gitkeep
@@ -80,3 +78,6 @@ database.database
 database.db
 diagram.png
 __pycache__/
+.pytest_cache/
+pytest-cache-files-*/
+.coverage
