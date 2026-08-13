@@ -45,7 +45,13 @@ const rawRequest = async (path, options = {}, csrfCookie = "csrf_access_token") 
 
 const request = async (path, options = {}, retry = true) => {
   const response = await rawRequest(path, options);
-  if (response.status === 401 && retry && !path.startsWith("/api/auth/")) {
+  const hasRefreshSession = Boolean(readCookie("csrf_refresh_token"));
+  if (
+    response.status === 401 &&
+    retry &&
+    hasRefreshSession &&
+    !path.startsWith("/api/auth/")
+  ) {
     const refreshResponse = await rawRequest(
       "/api/auth/refresh",
       { method: "POST" },
