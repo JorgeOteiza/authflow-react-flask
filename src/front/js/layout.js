@@ -14,7 +14,7 @@ import { Footer } from "./component/footer";
 const RoutedApplication = () => {
   const location = useLocation();
   return (
-    <ManejoError resetKey={location.pathname}>
+    <ManejoError key={location.pathname}>
       <div>
         <ScrollToTop>
           <Navbar />

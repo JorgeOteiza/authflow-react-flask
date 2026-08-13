@@ -14,12 +14,6 @@ class ManejoError extends Component {
     console.error("ManejoError detectó un error", error, errorInfo);
   }
 
-  componentDidUpdate(previousProps) {
-    if (this.state.hasError && previousProps.resetKey !== this.props.resetKey) {
-      this.setState({ hasError: false });
-    }
-  }
-
   retry = () => {
     this.setState({ hasError: false });
   };
