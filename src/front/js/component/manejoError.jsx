@@ -14,9 +14,25 @@ class ManejoError extends Component {
     console.error("ManejoError detectó un error", error, errorInfo);
   }
 
+  componentDidUpdate(previousProps) {
+    if (this.state.hasError && previousProps.resetKey !== this.props.resetKey) {
+      this.setState({ hasError: false });
+    }
+  }
+
+  retry = () => {
+    this.setState({ hasError: false });
+  };
+
   render() {
     if (this.state.hasError) {
-      return <h1>Algo salió mal, inténtalo más tarde</h1>;
+      return (
+        <main className="page-state" role="alert">
+          <h1>Algo salió mal</h1>
+          <p>La vista no pudo cargarse correctamente.</p>
+          <button type="button" onClick={this.retry}>Volver a intentarlo</button>
+        </main>
+      );
     }
 
     return this.props.children;

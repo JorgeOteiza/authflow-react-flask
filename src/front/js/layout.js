@@ -6,16 +6,16 @@ import LogIn from "./component/LogIn.jsx";
 import Private from "./component/Private.jsx";
 import Navbar from "./component/navbar";
 import ProtectedRoute from "./component/ProtectedRoute.jsx";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import ManejoError from "./component/manejoError.jsx";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Home } from "./pages/home";
 import { Footer } from "./component/footer";
 
-const Layout = () => {
-  const basename = process.env.BASENAME || "";
-
+const RoutedApplication = () => {
+  const location = useLocation();
   return (
-    <div>
-      <BrowserRouter basename={basename}>
+    <ManejoError resetKey={location.pathname}>
+      <div>
         <ScrollToTop>
           <Navbar />
           <Routes>
@@ -30,8 +30,17 @@ const Layout = () => {
           </Routes>
           <Footer />
         </ScrollToTop>
-      </BrowserRouter>
-    </div>
+      </div>
+    </ManejoError>
+  );
+};
+
+const Layout = () => {
+  const basename = process.env.BASENAME || "";
+  return (
+    <BrowserRouter basename={basename}>
+      <RoutedApplication />
+    </BrowserRouter>
   );
 };
 
