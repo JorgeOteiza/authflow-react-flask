@@ -2,9 +2,9 @@
 # exit on error
 set -o errexit
 
-npm install
+npm ci
 npm run build
 
-pipenv install
-
-pipenv run upgrade
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+flask --app src/app.py db upgrade
