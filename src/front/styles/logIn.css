@@ -1,10 +1,26 @@
-.auth-page { align-items: center; display: flex; justify-content: center; min-height: calc(100vh - 145px); padding: 3rem 1rem; }
-.auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; box-shadow: 0 22px 55px rgba(32,50,90,.1); max-width: 460px; padding: 2.25rem; width: 100%; }
-.auth-card h1 { font-size: 2rem; margin: 0; }
-.auth-intro { color: var(--muted); line-height: 1.55; margin: .75rem 0 1.6rem; }
-.auth-form { display: grid; gap: .7rem; }
+.auth-page {
+  align-items: center;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(91,74,232,.11), transparent 25%),
+    radial-gradient(circle at 85% 85%, rgba(91,74,232,.07), transparent 22%);
+  display: flex;
+  justify-content: center;
+  min-height: calc(100vh - 137px);
+  padding: clamp(2.5rem, 6vw, 5rem) 1rem;
+}
+.auth-card { background: rgba(255,255,255,.94); border: 1px solid rgba(229,231,239,.9); border-radius: 24px; box-shadow: var(--shadow-lg); max-width: 450px; padding: clamp(1.6rem, 5vw, 2.5rem); position: relative; width: 100%; }
+.auth-icon { align-items: center; background: var(--primary-soft); border: 1px solid #dedafd; border-radius: 13px; color: var(--primary); display: flex; font-size: 1.15rem; font-weight: 800; height: 44px; justify-content: center; margin-bottom: 1.25rem; width: 44px; }
+.auth-card h1 { font-size: clamp(1.8rem, 5vw, 2.15rem); letter-spacing: -.035em; line-height: 1.1; margin: 0; }
+.auth-intro { color: var(--muted); font-size: .92rem; line-height: 1.55; margin: .7rem 0 1.7rem; }
+.auth-form { display: grid; gap: .65rem; }
 .auth-form input { margin-bottom: .45rem; }
 .auth-form button { margin-top: .65rem; width: 100%; }
-.form-error { background: #fff0ee; border: 1px solid #ffc9c2; border-radius: 8px; color: var(--danger); font-size: .9rem; margin: .4rem 0 0; padding: .7rem; }
-.auth-switch { color: var(--muted); margin: 1.4rem 0 0; text-align: center; }
-@media (max-width: 520px) { .auth-card { padding: 1.5rem; } }
+.form-error { background: #fff4f2; border: 1px solid #ffd3cd; border-radius: 10px; color: var(--danger); font-size: .84rem; line-height: 1.4; margin: .3rem 0 0; padding: .75rem; }
+.auth-switch { color: var(--muted); font-size: .88rem; margin: 1.5rem 0 0; text-align: center; }
+.auth-switch a { font-weight: 700; text-decoration: none; }
+.auth-switch a:hover { text-decoration: underline; }
+
+@media (max-width: 520px) {
+  .auth-page { align-items: flex-start; padding: 2rem .8rem; }
+  .auth-card { border-radius: 20px; padding: 1.45rem; }
+}

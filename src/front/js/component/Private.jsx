@@ -46,10 +46,10 @@ const Private = () => {
   return (
     <main className="profile-page">
       <section className="profile-card" aria-labelledby="profile-title">
-        <div className="profile-avatar" aria-hidden="true">{user.email.charAt(0).toUpperCase()}</div>
-        <p className="eyebrow">Sesión protegida</p>
-        <h1 id="profile-title">Tu perfil</h1>
-        <p className="profile-email">{user.email}</p>
+        <div className="profile-heading">
+          <div className="profile-avatar" aria-hidden="true">{user.email.charAt(0).toUpperCase()}</div>
+          <div><p className="eyebrow">Sesión protegida</p><h1 id="profile-title">Tu perfil</h1><p className="profile-email">{user.email}</p></div>
+        </div>
         <dl className="profile-details">
           <div><dt>Cuenta creada</dt><dd>{new Date(user.created_at).toLocaleString()}</dd></div>
           <div><dt>Último acceso</dt><dd>{user.last_login ? new Date(user.last_login).toLocaleString() : "Primer acceso"}</dd></div>
