@@ -1,82 +1,45 @@
-import React, { useState, useContext } from "react";
+import React, { useContext, useState } from "react";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { Context } from "../store/appContext";
-import { useNavigate, Link } from "react-router-dom";
-import Swal from "sweetalert2";
 import "../../styles/logIn.css";
 
 const LogIn = () => {
-  const { actions } = useContext(Context);
+  const { store, actions } = useContext(Context);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    const loginSuccess = await actions.login(email, password);
-    if (loginSuccess) {
-      Swal.fire({
-        icon: "success",
-        title: "Inicio de sesión exitoso",
-      });
-      const userId = sessionStorage.getItem("userId");
-      navigate(`/profile/${userId}`);
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "Credenciales inválidas",
-      });
-    }
+  if (store.sessionReady && store.user) return <Navigate to="/profile" replace />;
+
+  const handleSubmit = async event => {
+    event.preventDefault();
+    setSubmitting(true);
+    setError("");
+    const result = await actions.login(email, password);
+    setSubmitting(false);
+    if (result.ok) navigate("/profile");
+    else setError(result.message);
   };
 
   return (
-    <div className="login-container col-12 mx-auto m-3 h-100">
-      <h5 className="swal2-show">Inicio de sesión</h5>
-      <form onSubmit={handleLogin}>
-        <div className="input-group-login mx-5 px-2">
-          <div className="input-field pt-4">
-            <span className="far fa-user p-2"></span>
-            <input
-              value={email}
-              id="email"
-              type="text"
-              placeholder="Correo usuario"
-              className="input-field-login"
-              required
-              autoComplete="username"
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-
-          <div className="form-group-login py-1 pb-2">
-            <div className="input-field">
-              <span className="fas fa-lock p-2"></span>
-              <input
-                value={password}
-                id="password"
-                type="password"
-                placeholder="Contraseña"
-                className="input-field-login"
-                required
-                autoComplete="current-password"
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="boton-login col-9 mx-auto m-3">
-          <button type="submit" className="btn btn-dark w-100">
-            Iniciar sesión
-          </button>
-        </div>
-      </form>
-      <Link to="/">
-        <span className="btn btn-link" href="#" role="button">
-          Volver
-        </span>
-      </Link>
-    </div>
+    <main className="auth-page">
+      <section className="auth-card" aria-labelledby="login-title">
+        <p className="eyebrow">Acceso seguro</p>
+        <h1 id="login-title">Inicia sesión</h1>
+        <p className="auth-intro">Accede a tu perfil con tu correo y contraseña.</p>
+        <form onSubmit={handleSubmit} className="auth-form">
+          <label htmlFor="login-email">Correo electrónico</label>
+          <input id="login-email" type="email" autoComplete="email" required value={email} onChange={event => setEmail(event.target.value)} />
+          <label htmlFor="login-password">Contraseña</label>
+          <input id="login-password" type="password" autoComplete="current-password" required value={password} onChange={event => setPassword(event.target.value)} />
+          {error && <p className="form-error" role="alert">{error}</p>}
+          <button type="submit" disabled={submitting}>{submitting ? "Ingresando…" : "Iniciar sesión"}</button>
+        </form>
+        <p className="auth-switch">¿No tienes una cuenta? <Link to="/signup">Regístrate</Link></p>
+      </section>
+    </main>
   );
 };
 

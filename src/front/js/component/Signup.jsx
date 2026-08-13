@@ -1,93 +1,52 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
+import React, { useContext, useState } from "react";
+import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Context } from "../store/appContext";
+import "../../styles/logIn.css";
 
 const Signup = () => {
+  const { store, actions } = useContext(Context);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmation, setConfirmation] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  const handleSignup = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/signup`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          mode: "cors",
-          credentials: "include",
-          body: JSON.stringify({ email, password }),
-        }
-      );
+  if (store.sessionReady && store.user) return <Navigate to="/profile" replace />;
 
-      if (!response.ok) {
-        const data = await response.json();
-        Swal.fire({
-          icon: "error",
-          title: "Oops...",
-          text: data.message || "Fallo en el registro",
-        });
-      } else {
-        const data = await response.json();
-        if (data.user && data.user.id) {
-          sessionStorage.setItem("token", data.token);
-          sessionStorage.setItem("userId", data.user.id);
-
-          Swal.fire({
-            icon: "success",
-            title: "Bienvenido!",
-            text: "Tu cuenta ha sido creada exitosamente.",
-          });
-
-          navigate(`/profile/${data.user.id}`);
-        } else {
-          throw new Error("No se pudo obtener el perfil del usuario");
-        }
-      }
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: error.message || "Error durante el registro",
-      });
+  const handleSubmit = async event => {
+    event.preventDefault();
+    setError("");
+    if (password !== confirmation) {
+      setError("Las contraseñas no coinciden.");
+      return;
     }
+    setSubmitting(true);
+    const result = await actions.signup(email, password);
+    setSubmitting(false);
+    if (result.ok) navigate("/profile");
+    else setError(result.message);
   };
 
   return (
-    <div className="Registro container col alert-success d-flex justify-content-center mx-auto w-50 m-3 p-3 gap-3">
-      <form
-        className="row col-8 my-1 d-flex justify-content-center"
-        onSubmit={handleSignup}
-      >
-        <input
-          className="mb-1"
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          autoComplete="username"
-        />
-        <input
-          className="mt1"
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          autoComplete="current-password"
-        />
-        <button
-          className="botónRegistro btn-dark rounded-3 my-3 w-50"
-          type="submit"
-        >
-          Registrar
-        </button>
-      </form>
-    </div>
+    <main className="auth-page">
+      <section className="auth-card" aria-labelledby="signup-title">
+        <p className="eyebrow">Nueva cuenta</p>
+        <h1 id="signup-title">Crea tu perfil</h1>
+        <p className="auth-intro">Usa al menos 8 caracteres, con mayúsculas, minúsculas y números.</p>
+        <form onSubmit={handleSubmit} className="auth-form">
+          <label htmlFor="signup-email">Correo electrónico</label>
+          <input id="signup-email" type="email" autoComplete="email" maxLength="120" required value={email} onChange={event => setEmail(event.target.value)} />
+          <label htmlFor="signup-password">Contraseña</label>
+          <input id="signup-password" type="password" autoComplete="new-password" minLength="8" maxLength="128" required value={password} onChange={event => setPassword(event.target.value)} />
+          <label htmlFor="signup-confirmation">Confirma la contraseña</label>
+          <input id="signup-confirmation" type="password" autoComplete="new-password" required value={confirmation} onChange={event => setConfirmation(event.target.value)} />
+          {error && <p className="form-error" role="alert">{error}</p>}
+          <button type="submit" disabled={submitting}>{submitting ? "Creando cuenta…" : "Crear cuenta"}</button>
+        </form>
+        <p className="auth-switch">¿Ya tienes una cuenta? <Link to="/login">Inicia sesión</Link></p>
+      </section>
+    </main>
   );
 };
 

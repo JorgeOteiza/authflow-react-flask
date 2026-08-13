@@ -5,21 +5,13 @@ import Signup from "./component/Signup.jsx";
 import LogIn from "./component/LogIn.jsx";
 import Private from "./component/Private.jsx";
 import Navbar from "./component/navbar";
+import ProtectedRoute from "./component/ProtectedRoute.jsx";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { BackendURL } from "./component/backendURL.jsx";
 import { Home } from "./pages/home";
-import { Demo } from "./pages/demo";
-import { Single } from "./pages/single";
 import { Footer } from "./component/footer";
 
 const Layout = () => {
   const basename = process.env.BASENAME || "";
-
-  if (
-    !process.env.REACT_APP_BACKEND_URL ||
-    process.env.REACT_APP_BACKEND_URL === ""
-  )
-    return <BackendURL />;
 
   return (
     <div>
@@ -30,10 +22,11 @@ const Layout = () => {
             <Route element={<Home />} path="/" />
             <Route element={<Signup />} path="/signup" />
             <Route element={<LogIn />} path="/login" />
-            <Route element={<Private />} path="/profile/:id" />
-            <Route element={<Demo />} path="/api/demo" />
-            <Route element={<Single />} path="/api/single/:theid" />
-            <Route element={<h1>Not found!</h1>} path="*" />
+            <Route
+              path="/profile"
+              element={<ProtectedRoute><Private /></ProtectedRoute>}
+            />
+            <Route element={<main className="page-state"><h1>Página no encontrada</h1></main>} path="*" />
           </Routes>
           <Footer />
         </ScrollToTop>

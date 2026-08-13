@@ -1,4 +1,3 @@
-const webpack = require("webpack");
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const Dotenv = require("dotenv-webpack");
@@ -6,9 +5,10 @@ const Dotenv = require("dotenv-webpack");
 module.exports = {
   entry: ["./src/front/js/index.js"],
   output: {
-    filename: "bundle.js",
-    path: path.resolve(__dirname, "public"),
+    filename: "assets/[name].[contenthash].js",
+    path: path.resolve(__dirname, "dist"),
     publicPath: "/",
+    clean: true,
   },
   module: {
     rules: [
@@ -28,17 +28,7 @@ module.exports = {
           },
         ],
       }, //css only files
-      {
-        test: /\.(png|svg|jpg|gif|jpeg|webp)$/,
-        use: {
-          loader: "file-loader",
-          options: { name: "[name].[ext]" },
-        },
-      }, //for images
-      {
-        test: /\.woff($|\?)|\.woff2($|\?)|\.ttf($|\?)|\.eot($|\?)|\.svg($|\?)/,
-        use: ["file-loader"],
-      }, //for fonts
+      { test: /\.(png|svg|jpg|gif|jpeg|webp|woff2?|ttf|eot)$/i, type: "asset/resource" },
     ],
   },
   resolve: {
@@ -46,9 +36,9 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      favicon: "4geeks.ico",
+      favicon: "auth-lock.svg",
       template: "template.html",
     }),
-    new Dotenv({ safe: true, systemvars: true }),
+    new Dotenv({ systemvars: true }),
   ],
 };

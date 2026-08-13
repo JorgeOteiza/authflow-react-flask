@@ -1,46 +1,28 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUserLock } from "@fortawesome/free-solid-svg-icons";
 import { Context } from "../store/appContext";
 
 const Navbar = () => {
   const { store } = useContext(Context);
-  const userId = store.user?.id || sessionStorage.getItem("userId");
-
   return (
-    <nav className="navbar navbar-light bg-secondary opacity-50 py-4">
-      <div className="container text-adjust-center d-flex justify-content-end w-auto">
-        <div className="logoCandado m-0 p-1">
-          <FontAwesomeIcon
-            icon={faUserLock}
-            style={{ width: "12%", height: "12%" }}
-          />
-        </div>
-        <div className="ml-auto">
-          {userId ? (
-            <Link to={`/profile/${userId}`}>
-              <button className="btn btn-lg btn-primary rounded-pill">
-                Perfil
-              </button>
-            </Link>
+    <header className="site-header">
+      <nav className="site-nav" aria-label="Navegación principal">
+        <Link className="brand" to="/">
+          <svg className="brand-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V7a5 5 0 0 1 10 0v3h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h1Zm3 0h4V7a2 2 0 1 0-4 0v3Zm2 4a2 2 0 0 0-1 3.73V19h2v-1.27A2 2 0 0 0 12 14Z" /></svg>
+          <span>AuthFlow</span>
+        </Link>
+        <div className="nav-actions">
+          {store.user ? (
+            <Link className="nav-primary" to="/profile">Mi perfil</Link>
           ) : (
             <>
-              <Link to="/login">
-                <button className="btn btn-outline-light btn-primary rounded-pill">
-                  Iniciar Sesión
-                </button>
-              </Link>
-              <Link to="/signup">
-                <button className="btn btn-outline-light btn-dark rounded-pill">
-                  Registro
-                </button>
-              </Link>
+              <Link to="/login">Iniciar sesión</Link>
+              <Link className="nav-primary" to="/signup">Crear cuenta</Link>
             </>
           )}
         </div>
-      </div>
-    </nav>
+      </nav>
+    </header>
   );
 };
 
