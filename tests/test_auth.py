@@ -146,3 +146,17 @@ def test_unknown_api_route_returns_structured_404(client):
     assert response.status_code == 404
     assert response.is_json
     assert response.get_json()["error"]["code"] == "not_found"
+
+
+def test_local_frontend_origin_is_allowed_by_cors(client):
+    response = client.options(
+        "/api/auth/signup",
+        headers={
+            "Origin": "http://localhost:3000",
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "content-type",
+        },
+    )
+    assert response.status_code == 200
+    assert response.headers["Access-Control-Allow-Origin"] == "http://localhost:3000"
+    assert response.headers["Access-Control-Allow-Credentials"] == "true"

@@ -6,7 +6,7 @@ module.exports = merge(common, {
   mode: "development",
   devtool: "cheap-module-source-map",
   devServer: {
-    host: "127.0.0.1",
+    host: "localhost",
     port: 3000,
     hot: true,
     allowedHosts: ["localhost", "127.0.0.1"],

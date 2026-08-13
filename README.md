@@ -65,6 +65,10 @@ npm run dev
 
 Frontend: `http://localhost:3000` · API: `http://localhost:3001`
 
+Usa siempre `localhost` en ambas direcciones durante el desarrollo. No mezcles
+`localhost` con `127.0.0.1`: las cookies seguras y la política CORS distinguen
+ambos hosts.
+
 ## Comandos de verificación
 
 ```bash
