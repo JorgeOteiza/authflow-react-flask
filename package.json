@@ -23,15 +23,15 @@
     "@babel/core": "latest",
     "@babel/preset-env": "latest",
     "@babel/preset-react": "latest",
-    "babel-loader": "latest",
-    "css-loader": "latest",
-    "dotenv-webpack": "latest",
-    "html-webpack-plugin": "latest",
-    "style-loader": "latest",
+    "babel-loader": "^10.1.1",
+    "css-loader": "^7.1.4",
+    "dotenv-webpack": "^9.0.0",
+    "html-webpack-plugin": "^5.6.8",
+    "style-loader": "^4.0.0",
     "webpack": "latest",
-    "webpack-cli": "latest",
+    "webpack-cli": "^7.2.2",
     "webpack-dev-server": "latest",
-    "webpack-merge": "latest"
+    "webpack-merge": "^6.0.1"
   },
   "dependencies": {
     "react": "^19.2.0",
