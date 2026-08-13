@@ -24,6 +24,34 @@ services:
         fromDatabase:
           name: authflow-db
           property: connectionString
+      - key: RATELIMIT_STORAGE_URI
+        fromService:
+          type: keyvalue
+          name: authflow-rate-limits
+          property: connectionString
+      - key: EMAIL_DELIVERY
+        value: smtp
+      - key: REQUIRE_EMAIL_VERIFICATION
+        value: true
+      - key: PASSWORD_BREACH_CHECK
+        value: true
+      - key: FRONTEND_URL
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+
+  - type: keyvalue
+    name: authflow-rate-limits
+    region: ohio
+    plan: free
+    ipAllowList: []
+    maxmemoryPolicy: allkeys-lru
 
 databases:
   - name: authflow-db

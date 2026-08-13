@@ -11,7 +11,7 @@ from werkzeug.exceptions import HTTPException
 
 from api.commands import setup_commands
 from api.extensions import limiter
-from api.models import db
+from api.models import RevokedToken, User, db
 from api.routes import api
 from api.utils import generate_sitemap
 
@@ -54,6 +54,15 @@ def create_app(test_config=None):
         RATELIMIT_STORAGE_URI=os.getenv("RATELIMIT_STORAGE_URI", "memory://"),
         RATELIMIT_HEADERS_ENABLED=True,
         PROPAGATE_EXCEPTIONS=False,
+        FRONTEND_URL=os.getenv("FRONTEND_URL", "http://localhost:3000"),
+        EMAIL_DELIVERY=os.getenv("EMAIL_DELIVERY", "log"),
+        MAIL_FROM=os.getenv("MAIL_FROM", "noreply@authflow.local"),
+        SMTP_HOST=os.getenv("SMTP_HOST"),
+        SMTP_PORT=int(os.getenv("SMTP_PORT", "587")),
+        SMTP_USERNAME=os.getenv("SMTP_USERNAME"),
+        SMTP_PASSWORD=os.getenv("SMTP_PASSWORD"),
+        REQUIRE_EMAIL_VERIFICATION=os.getenv("REQUIRE_EMAIL_VERIFICATION", "true").lower() == "true",
+        PASSWORD_BREACH_CHECK=os.getenv("PASSWORD_BREACH_CHECK", "false").lower() == "true",
     )
     app.config.update(test_config)
 
@@ -61,6 +70,22 @@ def create_app(test_config=None):
     Migrate(app, db, compare_type=True)
     jwt = JWTManager(app)
     limiter.init_app(app)
+
+    if is_production:
+        if not app.config["RATELIMIT_STORAGE_URI"].startswith(("redis://", "rediss://")):
+            raise RuntimeError("RATELIMIT_STORAGE_URI must use Redis in production")
+        if app.config["EMAIL_DELIVERY"] != "smtp":
+            raise RuntimeError("EMAIL_DELIVERY must be smtp in production")
+        for setting in ("SMTP_HOST", "SMTP_USERNAME", "SMTP_PASSWORD"):
+            if not app.config.get(setting):
+                raise RuntimeError(f"Missing required environment variable: {setting}")
+
+    @jwt.token_in_blocklist_loader
+    def token_is_revoked(jwt_header, jwt_payload):
+        explicitly_revoked = db.session.scalar(db.select(RevokedToken.id).filter_by(jti=jwt_payload["jti"])) is not None
+        user = db.session.get(User, int(jwt_payload["sub"]))
+        wrong_session_version = user is None or jwt_payload.get("ver") != user.session_version
+        return explicitly_revoked or wrong_session_version
 
     cors_origin = app.config.get("CORS_ORIGIN") or os.getenv("CORS_ORIGIN", "http://localhost:3000")
     CORS(
