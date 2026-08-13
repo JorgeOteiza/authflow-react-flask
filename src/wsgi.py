@@ -1,5 +1,4 @@
-# This file was created to run the application on heroku using gunicorn.
-# Read more about it here: https://devcenter.heroku.com/articles/python-gunicorn
+# WSGI entry point used by production servers such as Gunicorn.
 
 from app import app as application
 

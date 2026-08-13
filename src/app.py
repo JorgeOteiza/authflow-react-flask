@@ -1,68 +1,152 @@
+import logging
 import os
-from flask import Flask, jsonify, send_from_directory
+from datetime import timedelta
+from uuid import uuid4
+
+from flask import Flask, abort, jsonify, send_from_directory
 from flask_cors import CORS
-from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
-from api.utils import generate_sitemap
-from api.models import db
-from api.routes import api  # Blueprint de rutas de la API
-from api.admin import setup_admin
+from flask_migrate import Migrate
+from werkzeug.exceptions import HTTPException
+
 from api.commands import setup_commands
-from api.login import login_bp  # Blueprint para login
-from api.profile import profile_bp
+from api.extensions import limiter
+from api.models import db
+from api.routes import api
+from api.utils import generate_sitemap
 
-app = Flask(__name__)
 
-# Configuración de la base de datos y JWT
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL").replace("postgres://", "postgresql://")
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'dev_secret_key')
+def required_setting(name, overrides):
+    value = overrides.get(name) if overrides else None
+    value = value or os.getenv(name)
+    if not value:
+        raise RuntimeError(f"Missing required environment variable: {name}")
+    return value
 
-db.init_app(app)
-Migrate(app, db, compare_type=True)
-jwt = JWTManager(app)
 
-# Configuración de CORS: permite acceso desde el frontend
-CORS(app, resources={r"/*": {"origins": os.getenv("CORS_ORIGIN", "https://petrifying-spooky-poltergeist-7v97v6w49rqgcp57v-3000.app.github.dev")}}, supports_credentials=True)
+def required_secret(name, overrides, is_production):
+    value = required_setting(name, overrides)
+    if is_production and len(value.encode("utf-8")) < 32:
+        raise RuntimeError(f"{name} must contain at least 32 bytes in production")
+    return value
 
-@app.after_request
-def after_request(response):
-    response.headers["Access-Control-Allow-Origin"] = os.getenv("CORS_ORIGIN", "https://petrifying-spooky-poltergeist-7v97v6w49rqgcp57v-3000.app.github.dev")
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
-    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-    response.headers["Access-Control-Allow-Credentials"] = "true"
-    return response
 
-# Registro de Blueprints
-setup_admin(app)
-setup_commands(app)
-app.register_blueprint(api, url_prefix='/api')
-app.register_blueprint(login_bp, url_prefix='/api/login')
-app.register_blueprint(profile_bp, url_prefix='/profile')
+def create_app(test_config=None):
+    app = Flask(__name__)
+    test_config = test_config or {}
+    environment = test_config.get("ENVIRONMENT", os.getenv("FLASK_ENV", "development"))
+    is_production = environment == "production"
 
-@app.route('/')
-def sitemap():
-    ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
-    static_file_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../public/')
-    return generate_sitemap(app) if ENV == "development" else send_from_directory(static_file_dir, 'index.html')
+    database_url = required_setting("DATABASE_URL", test_config).replace("postgres://", "postgresql://", 1)
+    app.config.update(
+        SQLALCHEMY_DATABASE_URI=database_url,
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        SECRET_KEY=required_secret("SECRET_KEY", test_config, is_production),
+        JWT_SECRET_KEY=required_secret("JWT_SECRET_KEY", test_config, is_production),
+        JWT_TOKEN_LOCATION=["cookies"],
+        JWT_ACCESS_COOKIE_PATH="/api/",
+        JWT_REFRESH_COOKIE_PATH="/api/auth/refresh",
+        JWT_COOKIE_SECURE=is_production,
+        JWT_COOKIE_SAMESITE="Lax",
+        JWT_COOKIE_CSRF_PROTECT=True,
+        JWT_ACCESS_TOKEN_EXPIRES=timedelta(minutes=15),
+        JWT_REFRESH_TOKEN_EXPIRES=timedelta(days=7),
+        RATELIMIT_STORAGE_URI=os.getenv("RATELIMIT_STORAGE_URI", "memory://"),
+        RATELIMIT_HEADERS_ENABLED=True,
+        PROPAGATE_EXCEPTIONS=False,
+    )
+    app.config.update(test_config)
 
-@app.route('/<path:path>', methods=['GET'])
-def serve_any_other_file(path):
-    static_file_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../public/')
-    if not os.path.isfile(os.path.join(static_file_dir, path)):
-        path = 'index.html'
-    return send_from_directory(static_file_dir, path)
+    db.init_app(app)
+    Migrate(app, db, compare_type=True)
+    jwt = JWTManager(app)
+    limiter.init_app(app)
 
-# Manejo de errores generales
-@app.errorhandler(Exception)
-def handle_exception(e):
-    """Maneja errores generales y los responde en formato JSON."""
-    response = {
-        "message": "An error occurred",
-        "error": str(e)
-    }
-    return jsonify(response), 500
+    cors_origin = app.config.get("CORS_ORIGIN") or os.getenv("CORS_ORIGIN", "http://localhost:3000")
+    CORS(
+        app,
+        resources={r"/api/*": {"origins": [origin.strip() for origin in cors_origin.split(",")]}},
+        supports_credentials=True,
+    )
 
-if __name__ == '__main__':
-    PORT = int(os.getenv('PORT', 3001))
-    app.run(host='0.0.0.0', port=PORT, debug=True)
+    setup_commands(app)
+    app.register_blueprint(api, url_prefix="/api")
+
+    @app.after_request
+    def security_headers(response):
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
+            "img-src 'self' data:; connect-src 'self' http://localhost:3001"
+        )
+        if is_production:
+            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        return response
+
+    @jwt.unauthorized_loader
+    def missing_token(reason):
+        return jsonify({"error": {"code": "authentication_required", "message": "Debes iniciar sesión."}}), 401
+
+    @jwt.invalid_token_loader
+    def invalid_token(reason):
+        return jsonify({"error": {"code": "invalid_token", "message": "La sesión no es válida."}}), 401
+
+    @jwt.expired_token_loader
+    def expired_token(jwt_header, jwt_payload):
+        return jsonify({"error": {"code": "token_expired", "message": "La sesión ha expirado."}}), 401
+
+    @jwt.revoked_token_loader
+    def revoked_token(jwt_header, jwt_payload):
+        return jsonify({"error": {"code": "token_revoked", "message": "La sesión fue revocada."}}), 401
+
+    @jwt.user_lookup_error_loader
+    def missing_user(jwt_header, jwt_payload):
+        return jsonify({"error": {"code": "account_not_found", "message": "La cuenta no existe."}}), 401
+
+    @app.errorhandler(HTTPException)
+    def handle_http_error(error):
+        return jsonify({"error": {"code": error.name.lower().replace(" ", "_"), "message": error.description}}), error.code
+
+    @app.errorhandler(Exception)
+    def handle_unexpected_error(error):
+        incident_id = uuid4().hex
+        app.logger.exception("Unhandled error [%s]", incident_id, exc_info=error)
+        return jsonify({
+            "error": {
+                "code": "internal_error",
+                "message": "Ha ocurrido un error inesperado.",
+                "incident_id": incident_id,
+            }
+        }), 500
+
+    @app.get("/")
+    def index():
+        static_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../dist/")
+        return generate_sitemap(app) if environment == "development" else send_from_directory(static_dir, "index.html")
+
+    @app.get("/<path:path>")
+    def serve_frontend(path):
+        if path.startswith("api/"):
+            abort(404)
+        static_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../dist/")
+        requested_path = path if os.path.isfile(os.path.join(static_dir, path)) else "index.html"
+        return send_from_directory(static_dir, requested_path)
+
+    if not app.debug:
+        logging.basicConfig(level=logging.INFO)
+
+    return app
+
+
+app = create_app()
+
+
+if __name__ == "__main__":
+    app.run(
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", 3001)),
+        debug=os.getenv("FLASK_DEBUG") == "1",
+    )
