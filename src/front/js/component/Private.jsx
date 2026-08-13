@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Context } from "../store/appContext.js";
+import { Context } from "../store/context.js";
 import Logout from "./LogOut.jsx";
 import "../../styles/perfil.css";
 

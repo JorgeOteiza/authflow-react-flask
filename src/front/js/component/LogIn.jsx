@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import { Context } from "../store/appContext";
+import { Context } from "../store/context.js";
 import "../../styles/logIn.css";
 
 const LogIn = () => {
@@ -38,6 +38,7 @@ const LogIn = () => {
           {error && <p className="form-error" role="alert">{error}</p>}
           <button type="submit" disabled={submitting}>{submitting ? "Ingresando…" : "Iniciar sesión"}<span aria-hidden="true">→</span></button>
         </form>
+        <Link className="auth-help" to="/forgot-password">¿Olvidaste tu contraseña?</Link>
         <p className="auth-switch">¿No tienes una cuenta? <Link to="/signup">Regístrate</Link></p>
       </section>
     </main>

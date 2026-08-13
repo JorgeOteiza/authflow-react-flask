@@ -19,6 +19,8 @@
 .auth-switch { color: var(--muted); font-size: .88rem; margin: 1.5rem 0 0; text-align: center; }
 .auth-switch a { font-weight: 700; text-decoration: none; }
 .auth-switch a:hover { text-decoration: underline; }
+.auth-help { display: block; font-size: .82rem; font-weight: 700; margin-top: 1rem; text-align: center; text-decoration: none; }
+.email-highlight { background: var(--primary-soft); border-radius: 10px; color: var(--primary-dark); font-weight: 700; overflow-wrap: anywhere; padding: .8rem; text-align: center; }
 
 @media (max-width: 520px) {
   .auth-page { align-items: flex-start; padding: 2rem .8rem; }

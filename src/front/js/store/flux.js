@@ -103,9 +103,27 @@ const getState = ({ setStore }) => ({
         { method: "POST", body: JSON.stringify({ email, password }) },
         false
       ));
-      if (result.ok) setStore({ user: result.data.user });
+      if (result.ok && result.data.user) setStore({ user: result.data.user });
       return result;
     },
+
+    verifyEmail: token => resultFrom(() => request(
+      "/api/auth/verify-email",
+      { method: "POST", body: JSON.stringify({ token }) },
+      false
+    )),
+
+    forgotPassword: email => resultFrom(() => request(
+      "/api/auth/forgot-password",
+      { method: "POST", body: JSON.stringify({ email }) },
+      false
+    )),
+
+    resetPassword: (token, password) => resultFrom(() => request(
+      "/api/auth/reset-password",
+      { method: "POST", body: JSON.stringify({ token, password }) },
+      false
+    )),
 
     updateAccount: async payload => {
       const result = await resultFrom(() => request(

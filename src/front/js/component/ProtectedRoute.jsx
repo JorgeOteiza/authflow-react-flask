@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { Navigate } from "react-router-dom";
-import { Context } from "../store/appContext";
+import { Context } from "../store/context.js";
 
 const ProtectedRoute = ({ children }) => {
   const { store } = useContext(Context);
