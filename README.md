@@ -12,6 +12,7 @@ AuthFlow comenzó durante un bootcamp de desarrollo full stack utilizando un sta
 - Inicio de sesión limitado contra ataques de fuerza bruta.
 - Contraseñas almacenadas exclusivamente mediante hash.
 - Access tokens de 15 minutos y refresh tokens de 7 días.
+- Rotación de refresh tokens e invalidación global de sesiones al cerrar sesión.
 - Tokens almacenados en cookies `HttpOnly`, `Secure` en producción y `SameSite=Lax`.
 - Protección CSRF mediante double-submit cookies.
 - Restauración y renovación automática de sesión.
@@ -20,6 +21,9 @@ AuthFlow comenzó durante un bootcamp de desarrollo full stack utilizando un sta
 - Eliminación segura de la propia cuenta.
 - Respuestas de error estructuradas sin filtrar información interna.
 - Migraciones de base de datos y pruebas automatizadas.
+- Verificación de correo y recuperación de contraseña mediante tokens de un solo uso.
+- Comprobación opcional de contraseñas filtradas mediante k-anonymity.
+- Auditoría de eventos de seguridad y Redis para rate limiting en producción.
 - Integración continua y despliegue preparado para Render.
 
 ## Tecnologías
@@ -32,7 +36,7 @@ AuthFlow comenzó durante un bootcamp de desarrollo full stack utilizando un sta
 
 ## Instalación local
 
-Requisitos: Python 3.10+, Node.js 24 LTS, npm y PostgreSQL.
+Requisitos: Python 3.12+, Node.js 24, npm y PostgreSQL. Redis y SMTP son obligatorios en producción.
 
 ```bash
 git clone https://github.com/JorgeOteiza/authflow-react-flask.git
@@ -48,7 +52,7 @@ npm ci
 cp .env.example .env
 ```
 
-Genera valores aleatorios diferentes, de al menos 32 bytes, para `SECRET_KEY` y `JWT_SECRET_KEY`. Configura también `DATABASE_URL` para tu instancia PostgreSQL.
+Genera valores aleatorios diferentes, de al menos 32 bytes, para `SECRET_KEY` y `JWT_SECRET_KEY`. Configura también `DATABASE_URL`. El `.env.example` documenta SMTP, Redis y la política de contraseñas. En desarrollo, `EMAIL_DELIVERY=log` imprime los enlaces de correo en la consola de Flask.
 
 Aplica las migraciones e inicia la API:
 
@@ -73,9 +77,15 @@ ambos hosts.
 
 ```bash
 pytest
+npm test
+npm run test:e2e
 npm audit
 npm run build
 ```
+
+Las pruebas E2E usan servicios temporales en los puertos 3100/3101 y cubren escritorio, iPhone 12 Pro y Galaxy. Instala Chromium una vez con `npx playwright install chromium`.
+
+La API entrega timestamps UTC con sufijo `Z` y el navegador los convierte a la zona horaria local. Para limpiar tokens expirados y eventos con más de 90 días ejecuta `flask --app src/app.py purge-security-records`.
 
 ## API
 
@@ -87,6 +97,9 @@ El contrato completo y los ejemplos se encuentran en [docs/API.md](docs/API.md).
 | `POST` | `/api/auth/login` | Iniciar sesión |
 | `POST` | `/api/auth/refresh` | Renovar la sesión |
 | `POST` | `/api/auth/logout` | Cerrar la sesión |
+| `POST` | `/api/auth/verify-email` | Verificar el correo |
+| `POST` | `/api/auth/forgot-password` | Solicitar recuperación |
+| `POST` | `/api/auth/reset-password` | Restablecer contraseña |
 | `GET` | `/api/me` | Consultar el perfil actual |
 | `PUT` | `/api/me` | Actualizar la propia cuenta |
 | `DELETE` | `/api/me` | Eliminar la propia cuenta |
