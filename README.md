@@ -54,13 +54,13 @@ Aplica las migraciones e inicia la API:
 
 ```bash
 flask --app src/app.py db upgrade
-flask --app src/app.py run --host 0.0.0.0 --port 3001
+flask run
 ```
 
 En otra terminal, inicia React:
 
 ```bash
-npm start
+npm run dev
 ```
 
 Frontend: `http://localhost:3000` · API: `http://localhost:3001`
