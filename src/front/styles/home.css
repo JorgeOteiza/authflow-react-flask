@@ -33,6 +33,8 @@
 .security-list p { display: grid; gap: .2rem; margin: 0; }
 .security-list strong { font-size: .86rem; }
 .security-list small { color: #aeb2c5; font-size: .73rem; line-height: 1.35; }
+.panel-stack { border-top: 1px solid rgba(255,255,255,.08); display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.3rem; padding-top: 1rem; position: relative; z-index: 1; }
+.panel-stack span { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); border-radius: 999px; color: #bfc2d2; font-size: .66rem; font-weight: 700; letter-spacing: .05em; padding: .35rem .58rem; text-transform: uppercase; }
 
 @media (max-width: 900px) {
   .home-page { align-items: flex-start; }
