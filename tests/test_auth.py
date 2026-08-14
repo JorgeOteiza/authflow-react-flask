@@ -127,8 +127,25 @@ def test_login_is_rate_limited():
             response = limited_client.post("/api/auth/login", json={"email": "none@example.com", "password": "Wrong1234"})
             assert response.status_code == 401
         response = limited_client.post("/api/auth/login", json={"email": "none@example.com", "password": "Wrong1234"})
-        assert response.status_code == 429
+    assert response.status_code == 429
+    with application.app_context():
         db.drop_all()
+
+
+def test_cors_preflight_is_never_rate_limited(app):
+    app.config["RATELIMIT_ENABLED"] = True
+    client = app.test_client()
+    headers = {
+        "Origin": "http://localhost:3000",
+        "Access-Control-Request-Method": "DELETE",
+        "Access-Control-Request-Headers": "content-type,x-csrf-token",
+    }
+
+    for _ in range(220):
+        response = client.options("/api/me", headers=headers)
+
+    assert response.status_code == 200
+    assert response.headers["Access-Control-Allow-Origin"] == "http://localhost:3000"
 
 
 def test_production_rejects_short_secrets():

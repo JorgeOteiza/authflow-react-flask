@@ -3,7 +3,7 @@ import os
 from datetime import timedelta
 from uuid import uuid4
 
-from flask import Flask, abort, jsonify, send_from_directory
+from flask import Flask, abort, jsonify, request, send_from_directory
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
@@ -70,6 +70,10 @@ def create_app(test_config=None):
     Migrate(app, db, compare_type=True)
     jwt = JWTManager(app)
     limiter.init_app(app)
+
+    @limiter.request_filter
+    def exempt_cors_preflight():
+        return request.method == "OPTIONS"
 
     if is_production:
         if not app.config["RATELIMIT_STORAGE_URI"].startswith(("redis://", "rediss://")):

@@ -126,7 +126,7 @@ def verify_email():
     user.email_verified_at = datetime.now(timezone.utc)
     audit("email_verified", user)
     db.session.commit()
-    return authentication_response(user)
+    return jsonify({"message": "Correo verificado correctamente.", "user": user.serialize()}), 200
 
 
 @api.post("/auth/resend-verification")
