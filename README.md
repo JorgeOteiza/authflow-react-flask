@@ -6,6 +6,44 @@ Aplicación full stack de autenticación que demuestra un flujo seguro de regist
 
 AuthFlow comenzó durante un bootcamp de desarrollo full stack utilizando un starter educativo. Desde entonces ha sido ampliado, modernizado y mantenido por [Jorge Oteiza](https://github.com/JorgeOteiza). Actualmente es un repositorio independiente con arquitectura, interfaz, seguridad, pruebas y despliegue propios.
 
+## Vista previa
+
+![Vista principal de AuthFlow en escritorio](docs/screenshots/hero-desktop.png)
+
+La interfaz presenta el estado de seguridad sin ocultar la experiencia de producto y se adapta a escritorio, tablet y móvil.
+
+## Recorrido visual
+
+<table>
+  <tr>
+    <td width="33%" align="center">
+      <img src="docs/screenshots/signup-iphone.png" alt="Registro de cuenta en iPhone 12 Pro" />
+      <br /><strong>Registro responsive</strong>
+    </td>
+    <td width="33%" align="center">
+      <img src="docs/screenshots/email-verified-iphone.png" alt="Confirmación de correo en iPhone 12 Pro" />
+      <br /><strong>Verificación de correo</strong>
+    </td>
+    <td width="33%" align="center">
+      <img src="docs/screenshots/profile-ipad.png" alt="Perfil y controles de seguridad en iPad Air" />
+      <br /><strong>Cuenta y seguridad</strong>
+    </td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/delete-confirmation-iphone.png" alt="Confirmación segura para eliminar una cuenta" />
+      <br /><strong>Confirmación sensible</strong>
+    </td>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/account-deleted-iphone.png" alt="Mensaje final después de eliminar una cuenta" />
+      <br /><strong>Resultado confirmado</strong>
+    </td>
+  </tr>
+</table>
+
 ## Características
 
 - Registro con normalización de correo y validación de contraseña.
@@ -31,8 +69,10 @@ AuthFlow comenzó durante un bootcamp de desarrollo full stack utilizando un sta
 - React 19, React Router y Context API.
 - Flask, Flask-JWT-Extended y Flask-Limiter.
 - SQLAlchemy, Alembic y PostgreSQL.
+- Redis para rate limiting compartido.
 - Webpack 5.
-- Pytest y GitHub Actions.
+- Pytest, Vitest, Playwright y GitHub Actions.
+- Docker Compose para la infraestructura local.
 
 ## Instalación local
 
