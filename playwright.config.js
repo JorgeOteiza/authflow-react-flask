@@ -13,21 +13,12 @@ module.exports = defineConfig({
   ],
   webServer: [
     {
-      command: "python -m flask --app src/app.py db upgrade && python -m flask --app src/app.py run --port 3101",
+      command: "pipenv run python tests/e2e_server.py",
       url: "http://localhost:3101/api/health",
       reuseExistingServer: false,
-      env: {
-        DATABASE_URL: "sqlite:///authflow-e2e.db",
-        SECRET_KEY: "e2e-application-secret-with-at-least-32-bytes",
-        JWT_SECRET_KEY: "e2e-jwt-secret-with-at-least-32-bytes-long",
-        FLASK_ENV: "testing",
-        REQUIRE_EMAIL_VERIFICATION: "false",
-        PASSWORD_BREACH_CHECK: "false",
-        CORS_ORIGIN: "http://localhost:3100",
-      },
     },
     {
-      command: "npm run dev -- --port 3100",
+      command: "npm run build && python -m http.server 3100 --directory dist",
       url: "http://localhost:3100",
       reuseExistingServer: false,
       env: { REACT_APP_BACKEND_URL: "http://localhost:3101" },
