@@ -9,26 +9,67 @@ const AuthShell = ({ eyebrow, title, children }) => (
 
 export const CheckEmail = () => {
   const location = useLocation();
-  return <AuthShell eyebrow="Un paso más" title="Revisa tu correo"><p className="auth-intro">{location.state?.message || "Te enviamos un enlace para continuar."}</p>{location.state?.email && <p className="email-highlight">{location.state.email}</p>}<p className="auth-switch"><Link to="/login">Volver al inicio de sesión</Link></p></AuthShell>;
+  const navigate = useNavigate();
+  const pendingEmail = location.state?.email || "";
+
+  useEffect(() => {
+    const completeVerification = verifiedEmail => {
+      if (pendingEmail && verifiedEmail && pendingEmail !== verifiedEmail) return;
+      navigate("/login", {
+        replace: true,
+        state: { email: verifiedEmail || pendingEmail, verified: true }
+      });
+    };
+    const channel = "BroadcastChannel" in window ? new BroadcastChannel("authflow-auth") : null;
+    const onMessage = event => {
+      if (event.data?.type === "email-verified") completeVerification(event.data.email);
+    };
+    const onStorage = event => {
+      if (event.key !== "authflow-email-verified" || !event.newValue) return;
+      completeVerification(JSON.parse(event.newValue).email);
+    };
+    if (channel) channel.addEventListener("message", onMessage);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      if (channel) channel.close();
+      window.removeEventListener("storage", onStorage);
+    };
+  }, [navigate, pendingEmail]);
+
+  return <AuthShell eyebrow="Un paso más" title="Revisa tu correo"><p className="auth-intro">{location.state?.message || "Te enviamos un enlace para continuar."}</p>{pendingEmail && <p className="email-highlight">{pendingEmail}</p>}<p className="waiting-note"><span aria-hidden="true" /> Esta pantalla se actualizará automáticamente</p><p className="auth-switch"><Link to="/login" state={{ email: pendingEmail }}>Volver al inicio de sesión</Link></p></AuthShell>;
 };
 
 export const VerifyEmail = () => {
   const { actions } = useContext(Context);
   const [params] = useSearchParams();
   const token = params.get("token");
-  const [status, setStatus] = useState({ loading: true, error: "" });
-  const navigate = useNavigate();
+  const [status, setStatus] = useState({ loading: true, error: "", verifiedEmail: "" });
   useEffect(() => {
     let active = true;
     const verify = async () => {
       const result = await actions.verifyEmail(token);
       if (!active) return;
-      if (result.ok) navigate("/profile", { replace: true });
+      if (result.ok) {
+        const email = result.data.user?.email || "";
+        const payload = { type: "email-verified", email };
+        if ("BroadcastChannel" in window) {
+          const channel = new BroadcastChannel("authflow-auth");
+          channel.postMessage(payload);
+          channel.close();
+        }
+        localStorage.setItem("authflow-email-verified", JSON.stringify({ email, at: Date.now() }));
+        setStatus({ loading: false, error: "", verifiedEmail: email });
+      }
       else setStatus({ loading: false, error: result.message });
     };
     verify();
     return () => { active = false; };
-  }, [actions, navigate, token]);
+  }, [actions, token]);
+
+  if (status.verifiedEmail) {
+    return <AuthShell eyebrow="Verificación completada" title="Correo confirmado"><div className="verification-success" role="status"><span aria-hidden="true">✓</span><p><strong>Tu cuenta ya está verificada.</strong>Vuelve a la pestaña anterior para iniciar sesión. Ya puedes cerrar esta pestaña.</p></div><p className="email-highlight">{status.verifiedEmail}</p><p className="auth-switch"><Link to="/login" state={{ email: status.verifiedEmail, verified: true }}>Iniciar sesión en esta pestaña</Link></p></AuthShell>;
+  }
+
   return <AuthShell eyebrow="Verificación" title={status.loading ? "Verificando tu cuenta…" : "No pudimos verificarla"}><p className={status.error ? "form-error" : "auth-intro"}>{status.error || "Esto solo tardará un momento."}</p>{status.error && <p className="auth-switch"><Link to="/login">Volver al inicio</Link></p>}</AuthShell>;
 };
 

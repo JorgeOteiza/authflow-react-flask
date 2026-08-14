@@ -35,7 +35,13 @@ const Signup = () => {
   return (
     <main className="auth-page">
       <section className="auth-card" aria-labelledby="signup-title">
-        <div className="auth-icon" aria-hidden="true">+</div>
+        <div className="auth-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <circle cx="9" cy="8" r="3.5" />
+            <path d="M3.5 19c.5-3.3 2.4-5 5.5-5s5 1.7 5.5 5" />
+            <path d="M18 8v6M15 11h6" />
+          </svg>
+        </div>
         <p className="eyebrow">Nueva cuenta</p>
         <h1 id="signup-title">Crea tu perfil</h1>
         <p className="auth-intro">Usa al menos 10 caracteres, con mayúsculas, minúsculas y números.</p>

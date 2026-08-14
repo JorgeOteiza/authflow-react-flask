@@ -60,11 +60,21 @@
 }
 
 @media (max-width: 500px) {
+  .profile-page { padding: 1rem .7rem 1.5rem; }
+  .profile-main { padding: 1.2rem; }
   .profile-heading { gap: .75rem; }
   .profile-identity { gap: .8rem; }
   .status-badge { padding: .32rem .55rem; }
-  .profile-details div { align-items: flex-start; grid-template-columns: 34px 1fr; }
+  .profile-heading { padding-bottom: 1.3rem; }
+  .account-section { padding: 1.35rem 0; }
+  .section-heading { margin-bottom: .85rem; }
+  .profile-details { padding: 0 .8rem; }
+  .profile-details div { align-items: center; column-gap: .7rem; grid-template-columns: 32px 1fr; padding: .72rem 0; row-gap: .08rem; }
+  .detail-icon { height: 32px; width: 32px; }
+  .profile-details dt { align-self: end; font-size: .75rem; line-height: 1.25; }
   .profile-details dd { grid-column: 2; text-align: left; }
+  .security-grid { gap: .55rem; }
+  .security-grid > div { min-height: 64px; padding: .65rem .7rem; }
   .profile-actions, .dialog-actions { display: grid; grid-template-columns: 1fr; }
   .profile-actions button, .dialog-actions button, .profile-footer-actions button { width: 100%; }
   .dialog-actions .button-secondary { order: 2; }

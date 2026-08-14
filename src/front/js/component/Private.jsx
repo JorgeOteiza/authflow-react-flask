@@ -56,7 +56,7 @@ const Private = () => {
     event.preventDefault(); setSubmitting(true);
     const result = await actions.deleteAccount(deletePassword);
     setSubmitting(false);
-    if (result.ok) navigate("/");
+    if (result.ok) navigate("/", { replace: true, state: { accountDeleted: true } });
     else { setDeleteOpen(false); setDeletePassword(""); setMessage({ type: "error", text: result.message }); }
   };
 

@@ -7,6 +7,7 @@
   min-height: calc(100vh - 137px);
   overflow: hidden;
   padding: clamp(3rem, 7vw, 6.5rem) 1.5rem;
+  position: relative;
 }
 .hero { align-items: center; display: grid; gap: clamp(3rem, 8vw, 7rem); grid-template-columns: minmax(0, 1.15fr) minmax(330px, .75fr); margin: 0 auto; max-width: 1180px; width: 100%; }
 .hero-content { position: relative; z-index: 1; }

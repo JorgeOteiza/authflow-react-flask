@@ -78,7 +78,8 @@ const resultFrom = async operation => {
 const getState = ({ setStore }) => ({
   store: {
     user: null,
-    sessionReady: false
+    sessionReady: false,
+    notice: null
   },
   actions: {
     restoreSession: async () => {
@@ -139,9 +140,18 @@ const getState = ({ setStore }) => ({
         "/api/me",
         { method: "DELETE", body: JSON.stringify({ password }) }
       ));
-      if (result.ok) setStore({ user: null });
+      if (result.ok) {
+        const notice = {
+          type: "account-deleted",
+          title: "Cuenta eliminada con éxito",
+          message: "Tus datos y sesiones se eliminaron correctamente. Esperamos volver a verte pronto."
+        };
+        setStore({ user: null, notice });
+      }
       return result;
     },
+
+    clearNotice: () => setStore({ notice: null }),
 
     logout: async () => {
       await resultFrom(() => request("/api/auth/logout", { method: "POST" }, false));

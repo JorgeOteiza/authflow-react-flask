@@ -73,6 +73,17 @@ input { background: #fbfbfd; border: 1px solid var(--border); border-radius: 11p
 input::placeholder { color: #a4a9b6; }
 input:focus { background: white; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(91,74,232,.1); outline: none; }
 label { color: var(--ink-soft); font-size: .84rem; font-weight: 700; }
+.notice-backdrop { align-items: center; background: rgba(20,22,42,.16); backdrop-filter: blur(4px); display: flex; inset: 0; justify-content: center; padding: 1rem; pointer-events: none; position: fixed; z-index: 100; }
+.home-notice { align-items: center; animation: notice-in .28s ease-out both; background: rgba(255,255,255,.98); border: 1px solid #dce8e1; border-radius: 18px; box-shadow: 0 24px 70px rgba(23,24,48,.2); color: var(--muted); display: grid; gap: .85rem; grid-template-columns: 48px minmax(0, 1fr) auto; line-height: 1.45; max-width: 480px; overflow: hidden; padding: 1.2rem 1.15rem 1.25rem; pointer-events: auto; position: relative; width: 100%; }
+.home-notice-icon { align-items: center; background: linear-gradient(145deg, #e5f8ed, #d4f1e1); border: 1px solid #c5e8d3; border-radius: 14px; color: var(--success); display: flex; height: 48px; justify-content: center; width: 48px; }
+.home-notice-icon svg { fill: none; height: 25px; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2.2; width: 25px; }
+.home-notice-copy { display: grid; font-size: .82rem; gap: .18rem; }
+.home-notice strong { color: var(--ink); font-size: 1rem; letter-spacing: -.015em; }
+.home-notice button { align-self: start; background: transparent; border: 0; box-shadow: none; color: #8a909f; font-size: 1.25rem; line-height: 1; min-height: auto; padding: .3rem; }
+.home-notice button:hover { background: var(--primary-soft); box-shadow: none; color: var(--primary); transform: none; }
+.notice-progress { animation: notice-countdown 5s linear forwards; background: linear-gradient(90deg, var(--success), #65c99d); bottom: 0; height: 3px; left: 0; position: absolute; transform-origin: left; width: 100%; }
+@keyframes notice-in { from { opacity: 0; transform: translateY(12px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes notice-countdown { to { transform: scaleX(0); } }
 
 @media (max-width: 600px) {
   .site-nav { min-height: 64px; padding: .65rem 1rem; }
@@ -82,6 +93,10 @@ label { color: var(--ink-soft); font-size: .84rem; font-weight: 700; }
   .nav-actions > a:not(.nav-primary) { font-size: .78rem; padding: .5rem .35rem; }
   .nav-primary { font-size: .78rem; min-height: 36px; padding: .45rem .65rem; }
   .site-footer { align-items: flex-start; flex-direction: column; gap: .4rem; padding: 1.2rem 1rem; }
+  .home-notice { gap: .7rem; grid-template-columns: 42px minmax(0, 1fr) auto; padding: 1rem .9rem 1.1rem; }
+  .home-notice-icon { border-radius: 12px; height: 42px; width: 42px; }
+  .home-notice-copy { font-size: .76rem; }
+  .home-notice strong { font-size: .92rem; }
 }
 
 @media (max-width: 380px) {
@@ -90,4 +105,5 @@ label { color: var(--ink-soft); font-size: .84rem; font-weight: 700; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+  .home-notice, .notice-progress { animation: none !important; }
 }

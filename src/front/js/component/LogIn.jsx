@@ -1,11 +1,12 @@
 import React, { useContext, useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { Context } from "../store/context.js";
 import "../../styles/logIn.css";
 
 const LogIn = () => {
   const { store, actions } = useContext(Context);
-  const [email, setEmail] = useState("");
+  const location = useLocation();
+  const [email, setEmail] = useState(location.state?.email || "");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -30,6 +31,12 @@ const LogIn = () => {
         <p className="eyebrow">Acceso seguro</p>
         <h1 id="login-title">Inicia sesión</h1>
         <p className="auth-intro">Accede a tu perfil con tu correo y contraseña.</p>
+        {location.state?.verified && (
+          <p className="auth-notice" role="status">
+            <span aria-hidden="true">✓</span>
+            <span><strong>Correo verificado</strong>Vuelve a introducir tu contraseña para acceder.</span>
+          </p>
+        )}
         <form onSubmit={handleSubmit} className="auth-form">
           <label htmlFor="login-email">Correo electrónico</label>
           <input id="login-email" type="email" autoComplete="email" placeholder="tu@correo.com" required value={email} onChange={event => setEmail(event.target.value)} />
